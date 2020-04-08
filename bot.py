@@ -1,6 +1,5 @@
 import re
 import sys
-import tkn
 import _thread
 import gspread
 import telebot
@@ -33,8 +32,8 @@ headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.2; Win64; x64) AppleWebKit/5
 idMe = 396978030
 idAndre = 470292601
 keyboard.add(*buttons)
-idMain = tkn.idMain
-idJobi = tkn.idJobi
+idMain = idMe
+idJobi = idMe
 # =================================================================
 
 
@@ -151,7 +150,7 @@ logfile_start = open('log.txt', 'w')
 logfile_start.write('Начало записи лога ' + re.sub('<.*?>', '', logtime(0)))
 logfile_start.close()
 # bot = telebot.TeleBot('993071212:AAFbZvEx8IJaL1_8fWNDs4qdAJHNMKTnS7U')
-bot = telebot.TeleBot(tkn.tkn)
+bot = telebot.TeleBot('1127363695:AAE0rtR9pcFFPUFbMMD4pgc8n9wdr4-mLyg')
 start_message = bot.send_message(idMe, logtime(stamp1) + '\n' + logtime(0), parse_mode='HTML')
 # ====================================================================================
 
@@ -372,10 +371,6 @@ def former(growing, kind, pub_link):
         text += '👨🏻‍💻 ' + bold(growing['title']) + '\n'
     if growing['short_place'] != 'none':
         text += '🏙 ' + growing['short_place'] + '\n'
-    if growing['schedule'] != 'none':
-        text += '📈 График ➡ ' + growing['schedule'].capitalize() + '\n'
-    if growing['employment'] != 'none':
-        text += '⏰ Занятость ➡ ' + growing['employment'].capitalize() + '\n'
     if growing['experience'] != 'none':
         text += '🏅 Опыт работы ➡ ' + growing['experience'].capitalize() + '\n'
     if growing['education'] != 'none':
@@ -418,8 +413,7 @@ def former(growing, kind, pub_link):
             text += '#' + i + ' '
         text = text[:-1] + '\n'
 
-    if growing['short_place'] == 'none' or growing['money'] == 'none' or growing['numbers'] == 'none' or \
-            growing['title'] == 'none':
+    if growing['money'] == 'none' or growing['title'] == 'none':
         text = pub_link
     return [text, keys]
 
@@ -542,11 +536,7 @@ def telepol():
 
 
 if __name__ == '__main__':
-    gain = []
-    if tkn.floater == 1:
-        gain = [tut_checker, praca_checker]
-    elif tkn.idMain == idMe:
-        gain = [tut_checker, praca_checker]
+    gain = [tut_checker]
     thread_array = defaultdict(dict)
     for i in gain:
         thread_id = _thread.start_new_thread(i, ())
