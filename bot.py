@@ -469,7 +469,8 @@ def repeat_all_messages(message):
     try:
         if message.chat.id == idMe or message.chat.id == idAndre:
             if (message.text.startswith('https://praca.by/vacancy/') and message.text.endswith('/')) or \
-                    (message.text.startswith('https://jobs.tut.by/vacancy/') and message.text.endswith('/')):
+                    message.text.startswith('https://jobs.tut.by/vacancy/') or \
+                    message.text.startswith('https://hh.ru/vacancy/'):
                 site_search = re.search('tut\.by|hh\.ru', message.text)
                 if site_search:
                     post = tut_quest(message.text)
