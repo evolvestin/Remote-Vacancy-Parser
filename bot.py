@@ -32,7 +32,7 @@ headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.2; Win64; x64) AppleWebKit/5
 idMe = 396978030
 idAndre = 470292601
 keyboard.add(*buttons)
-idMain = -1001151841769
+idMain = -1001272631426
 idJobi = idMe
 # =================================================================
 
