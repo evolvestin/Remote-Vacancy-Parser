@@ -32,7 +32,7 @@ headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.2; Win64; x64) AppleWebKit/5
 idMe = 396978030
 idAndre = 470292601
 keyboard.add(*buttons)
-idMain = -1001272631426
+idMain = idMe
 idJobi = idMe
 # =================================================================
 
@@ -324,6 +324,8 @@ def tut_quest(pub_link):
         elif search_ot:
             money_array.append(search_ot.group(1))
             money_array.append('more')
+        else:
+            money_array = 'none'
         growing['money'] = money_array
 
     org_name = soup.find('a', class_='vacancy-company-name')
