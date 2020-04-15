@@ -367,7 +367,7 @@ def former(growing, kind, pub_link):
     if growing['metro'] != 'none':
         text += '🚇 ' + growing['metro'] + '\n'
 
-    if kind == 'MainChannel':
+    if kind != 'MainChannel':
         keys = None
         if growing['geo'].lower() != 'none':
             text += '\n📍 <a href="http://maps.yandex.ru/?text=' + growing['geo'] + '">На карте</a>\n'
