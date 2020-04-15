@@ -455,6 +455,9 @@ def repeat_all_messages(message):
                     poster(message.chat.id, former(post[1], 'Private', post[0]), post[0])
                 else:
                     bot.send_message(message.chat.id, bold('ссылка не подошла, пошел нахуй'), parse_mode='HTML')
+            elif message.text.startswith('/pic'):
+                subbed = re.sub('/pic', '', message.text).strip()
+                bot.send_message(message.chat.id, image(subbed), parse_mode='HTML')
             elif message.text.startswith('/base'):
                 doc = open('log.txt', 'rt')
                 bot.send_document(message.chat.id, doc)
