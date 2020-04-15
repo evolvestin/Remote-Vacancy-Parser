@@ -7,8 +7,12 @@ import requests
 import geocoder
 import traceback
 import unicodedata
+from PIL import Image
 from time import sleep
 from telebot import types
+from PIL import ImageFont
+from PIL import ImageDraw
+from telegraph import upload
 from bs4 import BeautifulSoup
 from datetime import datetime
 from unidecode import unidecode
@@ -25,14 +29,18 @@ used_array = used.col_values(1)
 keyboard = types.InlineKeyboardMarkup(row_width=2)
 buttons = [types.InlineKeyboardButton(text='✅', callback_data='post'),
            types.InlineKeyboardButton(text='👀', callback_data='viewed')]
-starting = ['title', 'place', 'tags', 'geo', 'money', 'org_name', 'schedule', 'employment',
-            'short_place', 'experience', 'education', 'contact', 'numbers', 'email', 'metro']
+starting = ['title', 'place', 'tags', 'geo', 'money', 'org_name', 'schedule', 'employment', 'short_place',
+            'experience', 'education', 'contact', 'numbers', 'description', 'email', 'metro']
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.2; Win64; x64) AppleWebKit/537.36'
                          ' (KHTML, like Gecko) Chrome/32.0.1667.0 Safari/537.36'}
-idMe = 396978030
-idAndre = 470292601
-keyboard.add(*buttons)
+
+font = ImageFont.truetype('Roboto-Light.ttf', 80)
 idMain = -1001272631426
+keyboard.add(*buttons)
+original_width = 1100
+idAndre = 470292601
+color = (0, 0, 0)
+idMe = 396978030
 idJobi = idMe
 # =================================================================
 
@@ -149,113 +157,48 @@ def logtime(stamp):
 logfile_start = open('log.txt', 'w')
 logfile_start.write('Начало записи лога ' + re.sub('<.*?>', '', logtime(0)))
 logfile_start.close()
-# bot = telebot.TeleBot('993071212:AAFbZvEx8IJaL1_8fWNDs4qdAJHNMKTnS7U')
+
 bot = telebot.TeleBot('1127363695:AAE0rtR9pcFFPUFbMMD4pgc8n9wdr4-mLyg')
 start_message = bot.send_message(idMe, logtime(stamp1) + '\n' + logtime(0), parse_mode='HTML')
 # ====================================================================================
 
 
-def praca_quest(link):
-    pub_link = link
-    req = requests.get(link)
-    soup = BeautifulSoup(req.text, 'html.parser')
+def width(row_text):
+    size = ImageFont.ImageFont.getsize(font, row_text)
+    text_width = size[0][0]
+    return text_width
 
-    growing = {}
-    for i in starting:
-        growing[i] = 'none'
 
-    if soup.find('span', class_='hidden-vac-contact') is not None:
-        link += '?token=wykzQ7x5oq6kZWG7naOvHprT4vcZ1vdFFUSXoOfmKR10pPWq0ox5acYvr3wcfg00'
-        req = requests.get(link)
-        soup = BeautifulSoup(req.text, 'html.parser')
-
-    title = soup.find('h1', class_='vacancy__title')
-    if title is not None:
-        growing['title'] = title.get_text().strip()
-
-    place = soup.find('div', class_='job-address')
-    if place is not None:
-        growing['place'] = re.sub('\s+', ' ', place.get_text().strip())
-
-    short_place = soup.find('div', class_='vacancy__city')
-    if short_place is not None:
-        growing['short_place'] = re.sub('\s+', ' ', short_place.get_text().strip())
-
-    tag_list = soup.find('div', class_='categories')
-    if tag_list is not None:
-        tags = tag_list.find_all('a')
-        tag_array = []
-        for i in tags:
-            tag = re.sub('[\s-]', '_', i.get_text())
-            tag_array.append(re.sub('_/_', ' #', tag))
-        growing['tags'] = tag_array
-
-    if growing['place'] != growing['short_place'] and growing['place'] != 'none':
-        geo = geocoder.osm(growing['place'])
-        if geo is not None:
-            growing['geo'] = re.sub('[\[\]\s]', '', str(geo.latlng))
-
-    metro = soup.find('div', class_='vacancy__metro')
-    if metro is not None:
-        metro_array = metro.find_all('span', class_='nowrap')
-        metro = ''
-        for i in metro_array:
-            metro += re.sub('\s+', ' ', i.get_text().capitalize().strip() + ', ')
-        growing['metro'] = metro[:-2]
-
-    money = soup.find('div', class_='vacancy__salary')
-    if money is not None:
-        money = re.sub('\s', '', money.get_text())
-        search_gold = re.search('(\d+)', money)
-        search = re.search('ивыше', money)
-        money_array = []
-        more = 'none'
-        if search_gold:
-            money_array.append(search_gold.group(1))
-        if search:
-            more = 'more'
-        money_array.append(more)
-        growing['money'] = money_array
-
-    org_name = soup.find('div', class_='org-info__item org-info__name')
-    if org_name is not None:
-        growing['org_name'] = re.sub('\s+', ' ', org_name.find('a').get_text().strip())
-
-    items = soup.find_all('div', class_='vacancy__item')
-    for i in items:
-        schedule = i.find('i', class_='pri-schedule')
-        if schedule is not None:
-            schedule = i.find('div', class_='vacancy__desc').get_text().strip()
-            growing['schedule'] = re.sub('\s+', ' ', schedule)
-
-        employment = i.find('i', class_='pri-employment')
-        if employment is not None:
-            employment = i.find('div', class_='vacancy__desc').get_text().strip()
-            growing['employment'] = re.sub('\s+', ' ', employment)
-
-        experience = i.find('p', class_='vacancy__experience')
-        if experience is not None:
-            experience = re.sub('Опыт работы', '', experience.get_text())
-            growing['experience'] = re.sub('\s+', ' ', experience.strip())
-
-        education = i.find('p', class_='vacancy__education')
-        if education is not None:
-            education = re.sub('.бразование', '', education.get_text())
-            growing['education'] = re.sub('\s+', ' ', education.strip())
-
-        contact = i.find('div', class_='vacancy__term')
-        if contact.get_text() == 'Контактное лицо:':
-            growing['contact'] = re.sub('\s+', ' ', i.find('div', class_='vacancy__desc').get_text().strip())
-        if contact.get_text() == 'Электронная почта:':
-            if i.find('div', class_='vacancy__desc') is not None:
-                growing['email'] = re.sub('\s+', ' ', i.find('div', class_='vacancy__desc').get_text().strip())
-        if contact.get_text() == 'Номера телефонов:':
-            number_array = i.find_all('span', class_='nowrap')
-            number = ''
-            for g in number_array:
-                number += re.sub('\s+', ' ', g.get_text().strip()) + '\n'
-            growing['numbers'] = number[:-1]
-    return [pub_link, growing]
+def image(image_text):
+    left = 50
+    img = Image.open('bot.png')
+    draw = ImageDraw.Draw(img)
+    if width(image_text) <= original_width:
+        left += (original_width - width(image_text)) // 2
+        draw.text((left, 250), image_text, color, font)
+    else:
+        temp_text_array = re.sub('\s+', ' ', image_text.strip()).split(' ')
+        layer = 1
+        while layer <= 3:
+            drop_text = ''
+            clearer = 0
+            for i in temp_text_array:
+                if width((drop_text + ' ' + i).strip()) <= original_width:
+                    drop_text = (drop_text + ' ' + i).strip()
+                    clearer += 1
+                else:
+                    break
+            for i in range(0, clearer):
+                temp_text_array.pop(0)
+            if len(drop_text) != 0:
+                text_position = (left + (original_width - width(drop_text)) // 2, 172 + 78 * layer)
+                draw.text(text_position, drop_text, color, font)
+            layer += 1
+    img.save('bot_edited.jpg')
+    doc = open('bot_edited.jpg', 'rb')
+    uploaded = upload.upload_file(doc)
+    uploaded_link = '<a href="https://telegra.ph' + uploaded[0] + '">​​</a>'
+    return uploaded_link
 
 
 def tut_quest(pub_link):
@@ -307,10 +250,9 @@ def tut_quest(pub_link):
                 if short_place is not None:
                     growing['short_place'] = re.sub('\s+', ' ', short_place.get_text().capitalize().strip())
 
-    if growing['place'] != growing['short_place'] and growing['place'] != 'none':
-        geo = geocoder.osm(growing['place'])
-        if geo is not None:
-            growing['geo'] = re.sub('[\[\]\s]', '', str(geo.latlng))
+    geo_search = re.search('{"lat": (.*?), "lng": (.*?), "zoom"', str(soup))
+    if geo_search:
+        growing['geo'] = re.sub('\s', '', geo_search.group(1)) + ',' + re.sub('\s', '', geo_search.group(2))
 
     money = soup.find('p', class_='vacancy-salary')
     if money is not None:
@@ -328,9 +270,35 @@ def tut_quest(pub_link):
             money_array = 'none'
         growing['money'] = money_array
 
-    org_name = soup.find('a', class_='vacancy-company-name')
+    org_name = soup.find('a', {'data-qa': 'vacancy-company-name'})
     if org_name is not None:
         growing['org_name'] = re.sub('\s+', ' ', org_name.get_text().strip())
+
+    description = soup.find('div', class_='g-user-content')
+    if description is not None:
+        description = description.find_all(['p', 'ul'])
+        tempering = []
+        main = ''
+        for i in description:
+            lists = i.find_all('li')
+            if len(lists) != 0:
+                text = ''
+                for g in lists:
+                    text += '🔹 ' + re.sub('\n', '', g.get_text().capitalize()) + '\n'
+            else:
+                text = ''
+                temp = i.get_text().strip()
+                if temp.endswith(':'):
+                    text += '\n✅ ' + bold(temp) + '\n'
+                else:
+                    tempering.append(temp)
+            main += text
+        main = main[:-1]
+        if len(tempering) > 0:
+            main += '\n\n'
+        for i in tempering:
+            main += i + '\n'
+        growing['description'] = main
 
     numbers = ''
     items = soup.find_all(['p', 'a', 'span'])
@@ -370,6 +338,7 @@ def tut_quest(pub_link):
 def former(growing, kind, pub_link):
     text = ''
     if growing['title'] != 'none':
+        text = image(growing['title'])
         text += '👨🏻‍💻 ' + bold(growing['title']) + '\n'
     if growing['short_place'] != 'none':
         text += '🏙 ' + growing['short_place'] + '\n'
@@ -382,6 +351,8 @@ def former(growing, kind, pub_link):
         if growing['money'][1] != 'none':
             more += '+'
         text += '💸 ' + bold('З/П ') + growing['money'][0] + more + ' руб.' + '\n'
+    if growing['description'] != 'none':
+        text += '{}\n'
     text += bold('\n📔 Контакты\n')
     if growing['org_name'] != 'none':
         text += growing['org_name'] + '\n'
@@ -415,7 +386,14 @@ def former(growing, kind, pub_link):
             text += '#' + i + ' '
         text = text[:-1] + '\n'
 
-    return [text, keys]
+    if growing['description'] != 'none':
+        len_text = 4094 - len(text)
+        if len_text - len(growing['description']) >= 0:
+            text = text.format(growing['description'])
+        else:
+            text = text.format(growing['description'][:len_text])
+
+    return [text, keys, image(growing['title'])]
 
 
 def poster(id_forward, array, pub_link):
@@ -426,7 +404,7 @@ def poster(id_forward, array, pub_link):
             if hours > 21 and hours < 8:
                 notify = True
             bot.send_message(id_forward, array[0], reply_markup=array[1], parse_mode='HTML',
-                             disable_web_page_preview=True, disable_notification=notify)
+                             disable_web_page_preview=False, disable_notification=notify)
         else:
             bot.send_message(idMe, 'Что-то пошло не так:\n' + pub_link, parse_mode='HTML',
                              disable_web_page_preview=False)
@@ -447,12 +425,12 @@ def callbacks(call):
                 site_search = re.search('tut\.by|hh\.ru', search.group(1))
                 if site_search:
                     post = tut_quest(search.group(1))
+                    poster(idMain, former(post[1], 'MainChannel', post[0]), post[0])
+                    text = call.message.text + code('\n✅ опубликован ✅')
+                    bot.edit_message_text(chat_id=call.message.chat.id, text=text, message_id=call.message.message_id,
+                                          reply_markup=None, parse_mode='HTML', disable_web_page_preview=True)
                 else:
-                    post = praca_quest(search.group(1))
-                poster(idMain, former(post[1], 'MainChannel', post[0]), post[0])
-                text = call.message.text + code('\n✅ опубликован ✅')
-                bot.edit_message_text(chat_id=call.message.chat.id, text=text, message_id=call.message.message_id,
-                                      reply_markup=None, parse_mode='HTML', disable_web_page_preview=True)
+                    send_json(call.message.text, 'callbacks', code('Не нашел в посте ссылку на вакансию'))
             else:
                 send_json(call.message.text, 'callbacks', code('Не нашел в посте ссылку на вакансию'))
 
@@ -474,9 +452,9 @@ def repeat_all_messages(message):
                 site_search = re.search('tut\.by|hh\.ru', message.text)
                 if site_search:
                     post = tut_quest(message.text)
+                    poster(message.chat.id, former(post[1], 'Private', post[0]), post[0])
                 else:
-                    post = praca_quest(message.text)
-                poster(message.chat.id, former(post[1], 'Private', post[0]), post[0])
+                    bot.send_message(message.chat.id, bold('ссылка не подошла, пошел нахуй'), parse_mode='HTML')
             elif message.text.startswith('/base'):
                 doc = open('log.txt', 'rt')
                 bot.send_document(message.chat.id, doc)
