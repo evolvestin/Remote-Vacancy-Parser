@@ -197,7 +197,7 @@ def image(image_text):
     img.save('bot_edited.jpg')
     doc = open('bot_edited.jpg', 'rb')
     uploaded = upload.upload_file(doc)
-    uploaded_link = '<a href="https://telegra.ph' + uploaded[0] + '"> ​​</a>'
+    uploaded_link = '<a href="https://telegra.ph' + uploaded[0] + '">​​</a>️'
     return uploaded_link
 
 
