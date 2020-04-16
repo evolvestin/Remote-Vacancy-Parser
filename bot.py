@@ -294,7 +294,6 @@ def tut_quest(pub_link):
                     else:
                         tempering.append(temp)
                 prev = temp
-
             main += text
         main = main[:-1]
         if len(tempering) > 0:
@@ -371,19 +370,10 @@ def former(growing, kind, pub_link):
         text += bold('\n🏘 Адрес\n') + growing['place'] + '\n'
     if growing['metro'] != 'none':
         text += '🚇 ' + growing['metro'] + '\n'
+    if growing['geo'] != 'none':
+        text += '\n📍 <a href="http://maps.yandex.ru/?text=' + growing['geo'] + '">На карте</a>\n'
 
-    if kind != 'MainChannel':
-        keys = None
-        if growing['geo'].lower() != 'none':
-            text += '\n📍 <a href="http://maps.yandex.ru/?text=' + growing['geo'] + '">На карте</a>\n'
-        text += '\n🔎 <a href="' + pub_link + '">Источник</a>\n'
-    else:
-        keys = keyboard
-        text += code('-------------------\n')
-        if growing['geo'].lower() != 'none':
-            text += '📍http://maps.yandex.ru/?text=' + growing['geo'] + '\n'
-        text += '🔎' + pub_link + '🔎\n'
-        text += code('-------------------\n')
+    text += '\n🔎 <a href="' + pub_link + '">Источник</a>\n'
 
     if growing['tags'] != 'none':
         text += italic('\n💼ТЕГИ: ')
@@ -398,7 +388,7 @@ def former(growing, kind, pub_link):
         else:
             text = text.format(growing['description'][:len_text])
 
-    return [text, keys, image(growing['title'])]
+    return [text, None, image(growing['title'])]
 
 
 def poster(id_forward, array, pub_link):
