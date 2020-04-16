@@ -276,22 +276,25 @@ def tut_quest(pub_link):
 
     description = soup.find('div', class_='g-user-content')
     if description is not None:
-        description = description.find_all(['p', 'ul'])
+        description = description.find_all(['p', 'ul', 'strong'])
         tempering = []
         main = ''
+        prev = ''
         for i in description:
+            text = ''
             lists = i.find_all('li')
             if len(lists) != 0:
-                text = ''
                 for g in lists:
                     text += '🔹 ' + re.sub('\n', '', g.get_text().capitalize()) + '\n'
             else:
-                text = ''
                 temp = i.get_text().strip()
-                if temp.endswith(':'):
-                    text += '\n✅ ' + bold(temp) + '\n'
-                else:
-                    tempering.append(temp)
+                if prev != temp:
+                    if temp.endswith(':'):
+                        text += '\n✅ ' + bold(temp) + '\n'
+                    else:
+                        tempering.append(temp)
+                prev = temp
+
             main += text
         main = main[:-1]
         if len(tempering) > 0:
