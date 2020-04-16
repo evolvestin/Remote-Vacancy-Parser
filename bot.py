@@ -341,7 +341,9 @@ def tut_quest(pub_link):
 def former(growing, kind, pub_link):
     text = ''
     if growing['title'] != 'none':
-        text = image(growing['title'])
+        text_to_image = re.sub('\(.*?\)|[.,]|г\.', '', growing['title'])
+        text_to_image = re.sub('e-mail', 'email', re.sub('\s+', ' ', text_to_image))
+        text = image(re.sub('[\s-]', ' ', text_to_image.strip()))
         text += '👨🏻‍💻 ' + bold(growing['title']) + '\n'
     if growing['short_place'] != 'none':
         text += '🏙 ' + growing['short_place'] + '\n'
