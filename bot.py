@@ -4,7 +4,6 @@ import sys
 import objects
 import _thread
 import gspread
-import telebot
 import requests
 import traceback
 import unicodedata
@@ -157,7 +156,7 @@ logfile_start = open('log.txt', 'w')
 logfile_start.write('Начало записи лога ' + re.sub('<.*?>', '', logtime(0)))
 logfile_start.close()
 
-bot = telebot.TeleBot(os.environ['TOKEN'])
+bot = objects.start_main_bot('non-async', os.environ['TOKEN'])
 start_message = bot.send_message(idMe, logtime(stamp1) + '\n' + logtime(0), parse_mode='HTML')
 # ====================================================================================
 
