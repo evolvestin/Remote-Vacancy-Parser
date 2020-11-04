@@ -1,3 +1,4 @@
+import os
 import re
 import sys
 import objects
@@ -159,7 +160,7 @@ logfile_start = open('log.txt', 'w')
 logfile_start.write('Начало записи лога ' + re.sub('<.*?>', '', logtime(0)))
 logfile_start.close()
 
-bot = telebot.TeleBot('1127363695:AAE0rtR9pcFFPUFbMMD4pgc8n9wdr4-mLyg')
+bot = telebot.TeleBot(os.environ['TOKEN'])
 start_message = bot.send_message(idMe, logtime(stamp1) + '\n' + logtime(0), parse_mode='HTML')
 # ====================================================================================
 
