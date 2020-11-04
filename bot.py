@@ -1,10 +1,10 @@
 import re
 import sys
+import objects
 import _thread
 import gspread
 import telebot
 import requests
-import geocoder
 import traceback
 import unicodedata
 from PIL import Image
@@ -25,6 +25,7 @@ creds2 = ServiceAccountCredentials.from_json_keyfile_name('person2.json', scope)
 client2 = gspread.authorize(creds2)
 used = client2.open('growing').worksheet('main')
 used_array = used.col_values(1)
+objects.environmental_files()
 
 keyboard = types.InlineKeyboardMarkup(row_width=2)
 buttons = [types.InlineKeyboardButton(text='✅', callback_data='post'),
