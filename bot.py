@@ -18,15 +18,12 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 from unidecode import unidecode
 from collections import defaultdict
-from oauth2client.service_account import ServiceAccountCredentials
 
 stamp1 = int(datetime.now().timestamp())
-scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
-creds2 = ServiceAccountCredentials.from_json_keyfile_name('person2.json', scope)
-client2 = gspread.authorize(creds2)
+objects.environmental_files()
+client2 = gspread.service_account('person2.json')
 used = client2.open('growing').worksheet('main')
 used_array = used.col_values(1)
-objects.environmental_files()
 
 keyboard = types.InlineKeyboardMarkup(row_width=2)
 buttons = [types.InlineKeyboardButton(text='✅', callback_data='post'),
@@ -465,7 +462,6 @@ def repeat_all_messages(message):
 
 def checker(adress, main_sep, link_sep, quest):
     global used
-    global creds2
     global client2
     global used_array
     sleep(3)
@@ -482,8 +478,7 @@ def checker(adress, main_sep, link_sep, quest):
             try:
                 used.insert_row([i], 1)
             except:
-                creds2 = ServiceAccountCredentials.from_json_keyfile_name('person2.json', scope)
-                client2 = gspread.authorize(creds2)
+                client2 = gspread.service_account('person2.json')
                 used = client2.open('growing').worksheet('main')
                 used.insert_row([i], 1)
             used_array.insert(0, i)
