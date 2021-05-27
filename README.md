@@ -1,9 +1,9 @@
 # Парсер [jobs.tut.by](https://jobs.tut.by)
 Собственно, скрипт парсера только раздела с удаленной работой.
-> Постим в закрытый канал в [Telegram](https://t.me/joinchat/AAAAAEva0IKegVo4DAXiHg).
-> Также к посту генерируется картинка с помощью библиотеки Pillow.
+> Постинг в закрытый канал в [Telegram](https://t.me/joinchat/AAAAAEva0IKegVo4DAXiHg).
+> Также к посту генерировалась картинка с помощью библиотеки Pillow.
 > 
-> `Занятный факт` Скрипт работал, даже после переезда сайта https://praca.by/.
+> `Занятный факт` Скрипт работал, даже после переезда сайта https://rabota.by/.
 > 
 > Все ссылки на вакансии сохранялись в [гугл таблицу](https://docs.google.com/spreadsheets/d/1X4WqwlY6c6LKrjwKHwwYcV8TSXVidLXA3pdA87gPPkg/edit?usp=sharing) (Таблица еще используется в 
 > [Belarus-Vacancy-Parser](https://github.com/evolvestin/Belarus-Vacancy-Parser)) 
